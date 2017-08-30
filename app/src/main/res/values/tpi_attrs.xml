@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="SimpleTabIndicator">
-        <attr name="tpi_titleSize" format="dimension" /> <!-- 标题大小 -->
-        <attr name="tpi_titleColor" format="color" />  <!-- 标题颜色 -->
-        <attr name="tpi_tabHeight" format="dimension" /> <!-- 标签高度 -->
-        <attr name="tpi_tabColor" format="color" /> <!-- 标签颜色 -->
-        <attr name="tpi_tabTopPadding" format="dimension"/> <!-- 标签距离标题间距 -->
-        <attr name="tpi_tabWidthPercent" format="float"/> <!-- 标签宽度百分比 -->
+        <attr name="sti_titleSize" format="dimension" /> <!-- 标题大小 -->
+        <attr name="sti_titleColor" format="color" />  <!-- 标题颜色 -->
+        <attr name="sti_tabHeight" format="dimension" /> <!-- 标签高度 -->
+        <attr name="sti_tabColor" format="color" /> <!-- 标签颜色 -->
+        <attr name="sti_tabTopPadding" format="dimension"/> <!-- 标签距离标题间距 -->
+        <attr name="sti_tabWidthPercent" format="float"/> <!-- 标签宽度百分比 -->
     </declare-styleable>
 </resources>

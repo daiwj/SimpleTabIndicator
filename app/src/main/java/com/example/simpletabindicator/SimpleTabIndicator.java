@@ -63,12 +63,12 @@ public class SimpleTabIndicator extends View {
         final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SimpleTabIndicator);
         final float density = context.getResources().getDisplayMetrics().density;
 
-        mTitleSize = (int) ta.getDimension(R.styleable.SimpleTabIndicator_tpi_titleSize, density * 18f);
-        mTitleColor = ta.getColor(R.styleable.SimpleTabIndicator_tpi_titleColor, Color.RED);
-        mTabHeight = (int) ta.getDimension(R.styleable.SimpleTabIndicator_tpi_tabHeight, density * 3f);
-        mTabColor = ta.getColor(R.styleable.SimpleTabIndicator_tpi_tabColor, Color.RED);
-        mTabTopPadding = (int) ta.getDimension(R.styleable.SimpleTabIndicator_tpi_tabTopPadding, density * 12f);
-        mTabWidthPercent = ta.getFloat(R.styleable.SimpleTabIndicator_tpi_tabWidthPercent, 1f);
+        mTitleSize = (int) ta.getDimension(R.styleable.SimpleTabIndicator_sti_titleSize, density * 18f);
+        mTitleColor = ta.getColor(R.styleable.SimpleTabIndicator_sti_titleColor, Color.RED);
+        mTabHeight = (int) ta.getDimension(R.styleable.SimpleTabIndicator_sti_tabHeight, density * 3f);
+        mTabColor = ta.getColor(R.styleable.SimpleTabIndicator_sti_tabColor, Color.RED);
+        mTabTopPadding = (int) ta.getDimension(R.styleable.SimpleTabIndicator_sti_tabTopPadding, density * 12f);
+        mTabWidthPercent = ta.getFloat(R.styleable.SimpleTabIndicator_sti_tabWidthPercent, 1f);
 
         mTitlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTitlePaint.setStyle(Paint.Style.FILL_AND_STROKE);

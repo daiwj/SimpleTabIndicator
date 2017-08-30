@@ -11,9 +11,9 @@
         android:layout_height="100dp"
         android:background="#ffcccc"
         android:paddingTop="30dp"
-        app:tpi_titleColor="#0000ff"
-        app:tpi_tabTopPadding="30dp"
-        app:tpi_tabWidthPercent="0.8" />
+        app:sti_tabTopPadding="30dp"
+        app:sti_tabWidthPercent="0.8"
+        app:sti_titleColor="#0000ff" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/view_pager"
