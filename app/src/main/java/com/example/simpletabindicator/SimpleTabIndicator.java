@@ -68,7 +68,10 @@ public class SimpleTabIndicator extends View {
         mTabHeight = (int) ta.getDimension(R.styleable.SimpleTabIndicator_sti_tabHeight, density * 3f);
         mTabColor = ta.getColor(R.styleable.SimpleTabIndicator_sti_tabColor, Color.RED);
         mTabTopPadding = (int) ta.getDimension(R.styleable.SimpleTabIndicator_sti_tabTopPadding, density * 12f);
+
         mTabWidthPercent = ta.getFloat(R.styleable.SimpleTabIndicator_sti_tabWidthPercent, 1f);
+        mTabWidthPercent = mTabWidthPercent > 1.0f ? 1.0f : mTabWidthPercent;
+        mTabWidthPercent = mTabWidthPercent < 0.0f ? 0.5f : mTabWidthPercent;
 
         mTitlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTitlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -89,7 +92,7 @@ public class SimpleTabIndicator extends View {
 
         if (heightMode == MeasureSpec.AT_MOST) {
             mTitlePaint.getTextBounds(TAG, 0, TAG.length(), titleRect);
-            int heightSize = getPaddingTop() + titleRect.height() + mTabTopPadding + mTabHeight;
+            int heightSize = getPaddingTop() + titleRect.height() + mTabTopPadding + mTabHeight + getPaddingBottom();
             setMeasuredDimension(widthSize, heightSize);
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);

@@ -8,10 +8,11 @@
     <com.example.simpletabindicator.SimpleTabIndicator
         android:id="@+id/tab_indicator"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:background="#ffcccc"
-        android:paddingTop="30dp"
-        app:sti_tabTopPadding="30dp"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        app:sti_tabTopPadding="20dp"
         app:sti_tabWidthPercent="0.8"
         app:sti_titleColor="#0000ff" />
 
