@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
         TABS.add("抵用券");
         TABS.add("加息券");
         TABS.add("提现券");
-        TABS.add("什么券");
     }
 
     SimpleTabIndicator indicator;
@@ -35,14 +34,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         indicator = (SimpleTabIndicator) findViewById(R.id.tab_indicator);
-        indicator.setTitles(TABS.toArray(new String[]{}));
+        viewPager = (ViewPager) findViewById(R.id.view_pager);
+        indicator.setViewPager(viewPager, TABS.toArray(new String[]{}));
         indicator.setOnTabChangedListener(new SimpleTabIndicator.OnTabChangedListener() {
             @Override
             public void onTabChanged(int currentTab) {
-                viewPager.setCurrentItem(currentTab, false);
+
             }
         });
-        viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), TABS));
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -52,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-                Log.w(TAG, "position: " + position);
                 indicator.setCurrentTab(position, true);
             }
 

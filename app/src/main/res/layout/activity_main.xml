@@ -12,9 +12,9 @@
         android:background="#ffcccc"
         android:paddingBottom="10dp"
         android:paddingTop="10dp"
+        app:sti_followViewPagerScroll="true"
         app:sti_tabTopPadding="20dp"
-        app:sti_tabWidthPercent="0.8"
-        app:sti_titleColor="#0000ff" />
+        app:sti_tabWidthPercent="1" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/view_pager"

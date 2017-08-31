@@ -10,14 +10,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * 简单的ViewPager指示器，标签数量建议在 4 个以内<br/>
+ * 简单的ViewPager指示器，标签数量建议在 2~4 个<br/>
  * 支持动态设置标签，支持点击切换标签，支持滚动动画<br/>
- * 不支持跟随手势滚动，不支持超屏幕滚动<br/>
+ * 不支持超屏幕滚动<br/>
  *
  * @author dwj  2017/8/23 09:08
  */
@@ -40,22 +41,15 @@ public class SimpleTabIndicator extends View {
 
     private int mCurrentTab = -1; // 当前标签索引
 
-    private boolean mSmoothScroll = false; // 是否滚动
-    private int mAnimationTabStartX;
+    private int mScrollStartX;
     private ValueAnimator mScrollAnimation;
 
     /**
      * 标签切换回调
      */
-    public interface OnTabChangedListener {
-        void onTabChanged(int currentTab);
-    }
+    public boolean mFollowViewPagerScroll; // 是否跟随ViewPager滚动
 
-    private OnTabChangedListener onTabChangedListener;
-
-    public void setOnTabChangedListener(OnTabChangedListener onTabChangedListener) {
-        this.onTabChangedListener = onTabChangedListener;
-    }
+    private ViewPager mViewPager;
 
     public SimpleTabIndicator(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -73,6 +67,8 @@ public class SimpleTabIndicator extends View {
         mTabWidthPercent = mTabWidthPercent > 1.0f ? 1.0f : mTabWidthPercent;
         mTabWidthPercent = mTabWidthPercent < 0.0f ? 0.5f : mTabWidthPercent;
 
+        mFollowViewPagerScroll = ta.getBoolean(R.styleable.SimpleTabIndicator_sti_followViewPagerScroll, false);
+
         mTitlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTitlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mTitlePaint.setTextSize(mTitleSize);
@@ -83,6 +79,155 @@ public class SimpleTabIndicator extends View {
         mTabPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mTabPaint.setStrokeWidth(mTabHeight);
         mTabPaint.setColor(mTabColor);
+        mTabPaint.setStrokeCap(Paint.Cap.ROUND);
+    }
+
+    /**
+     * @param viewPager
+     */
+    public void setViewPager(final ViewPager viewPager, final String... titles) {
+        if (viewPager != null) {
+            viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                    if (mFollowViewPagerScroll) {
+                        followViewPagerScroll(position, positionOffset, positionOffsetPixels);
+                    }
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+                    if (!mFollowViewPagerScroll) {
+                        setCurrentTab(position, true);
+                    } else {
+                        mCurrentTab = position;
+                    }
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+                    if (state == ViewPager.SCROLL_STATE_IDLE) {
+                        mCurrentTab = viewPager.getCurrentItem();
+                    }
+                }
+            });
+            mViewPager = viewPager;
+        } else {
+            mFollowViewPagerScroll = false;
+        }
+
+        if (titles == null || titles.length < 2) {
+            throw new IllegalArgumentException("titles must not be null or its length must not be less than 2.");
+        } else {
+            mTitles = titles;
+        }
+
+        setCurrentTab(0, false);
+    }
+
+    /**
+     * 设置指定标签页
+     *
+     * @param tab    标签页
+     * @param scroll 是否需要滚动动画
+     */
+    public void setCurrentTab(final int tab, final boolean scroll) {
+        setCurrentTab(tab, scroll, false);
+    }
+
+    /**
+     * 设置指定标签页
+     *
+     * @param tab    标签页
+     * @param scroll 是否需要滚动动画
+     */
+    private void setCurrentTab(final int tab, final boolean scroll, final boolean callback) {
+        if (mTitles != null && tab >= 0 && tab < mTitles.length && tab != mCurrentTab) {
+
+            final int count = mTitles.length;
+            final int averageWidth = getWidth() / count;
+            final int tabWidth = (int) (averageWidth * mTabWidthPercent);
+            final int startX = (averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth;
+            final int endX = startX + averageWidth * (tab - mCurrentTab);
+
+            if (scroll) {
+                smoothScrollTo(tab, startX, endX, callback);
+            } else {
+                mScrollStartX = (averageWidth - tabWidth) / 2 + tab * averageWidth;
+                mCurrentTab = tab;
+                postInvalidate();
+
+                if (mViewPager != null) {
+                    mViewPager.setCurrentItem(tab, false);
+                }
+                if (callback) {
+                    if (onTabChangedListener != null) {
+                        onTabChangedListener.onTabChanged(tab);
+                    }
+                }
+            }
+        }
+    }
+
+    private void followViewPagerScroll(int tab, float offsetPercent, int offsetPixels) {
+        if (offsetPercent == 0f || offsetPixels == 0) {
+            return;
+        }
+
+        final int tabCount = mTitles.length;
+        final int averageWidth = getWidth() / tabCount;
+        final int tabWidth = (int) (averageWidth * mTabWidthPercent);
+
+        if (tab == mCurrentTab) { // 往左滑动 或者 到达左边边界
+            mScrollStartX = (int) ((averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth + offsetPercent * averageWidth);
+        } else if (tab < mCurrentTab) { // 往右滑动  或者 到达右边边界
+            mScrollStartX = (int) ((averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth - (1 - offsetPercent) * averageWidth);
+        }
+
+        invalidate();
+    }
+
+    /**
+     * 滑动tab
+     *
+     * @param tab
+     */
+
+    private void smoothScrollTo(final int tab, int startX, int endX, final boolean callback) {
+        mScrollAnimation = ValueAnimator.ofInt(startX, endX);
+        mScrollAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                Integer value = (Integer) animation.getAnimatedValue();
+                mScrollStartX = value.intValue();
+                invalidate();
+            }
+        });
+        mScrollAnimation.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (mViewPager != null) {
+                    mViewPager.setCurrentItem(tab, false);
+                }
+                if (callback) {
+                    if (onTabChangedListener != null) {
+                        onTabChangedListener.onTabChanged(tab);
+                    }
+                }
+                mCurrentTab = tab;
+            }
+        });
+        mScrollAnimation.setDuration(100);
+        mScrollAnimation.start();
+    }
+
+    /**
+     * 滑动是否正在执行
+     *
+     * @return
+     */
+    private boolean isTabScrolling() {
+        return mScrollAnimation != null && mScrollAnimation.isRunning();
     }
 
     @Override
@@ -120,140 +265,43 @@ public class SimpleTabIndicator extends View {
         return clickedTab;
     }
 
-    /**
-     * 设置标题
-     *
-     * @param titles 标题
-     */
-    public void setTitles(final String... titles) {
-        mTitles = titles;
-        if (titles == null || titles.length < 2) {
-            throw new IllegalArgumentException("titles must not be null or its length must not be less than 2.");
-        }
-        setCurrentTab(0, false);
-    }
-
-    /**
-     * 设置指定标签页
-     *
-     * @param tab    标签页
-     * @param scroll 是否需要滚动动画
-     */
-    public void setCurrentTab(final int tab, final boolean scroll) {
-        setCurrentTab(tab, scroll, false);
-    }
-
-    /**
-     * 设置指定标签页
-     *
-     * @param tab    标签页
-     * @param scroll 是否需要滚动动画
-     */
-    private void setCurrentTab(final int tab, final boolean scroll, final boolean callback) {
-        if (mTitles != null && tab >= 0 && tab < mTitles.length && tab != mCurrentTab) {
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    mSmoothScroll = scroll;
-                    if (scroll) {
-                        smoothScrollToTab(tab, callback);
-                    } else {
-                        mCurrentTab = tab;
-                        invalidate();
-                        if (callback) {
-                            if (onTabChangedListener != null) {
-                                onTabChangedListener.onTabChanged(mCurrentTab);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    /**
-     * 滑动tab
-     *
-     * @param tab
-     */
-    private void smoothScrollToTab(final int tab, final boolean callback) {
-        final int count = mTitles.length;
-        final int averageWidth = getWidth() / count;
-        final int tabWidth = (int) (averageWidth * mTabWidthPercent);
-        final int startX = (averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth;
-        final int toX = startX + averageWidth * (tab - mCurrentTab);
-
-        mScrollAnimation = ValueAnimator.ofInt(startX, toX);
-        mScrollAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                Integer value = (Integer) animation.getAnimatedValue();
-                mAnimationTabStartX = value.intValue();
-                invalidate();
-            }
-        });
-        mScrollAnimation.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mCurrentTab = tab;
-                if (callback) {
-                    if (onTabChangedListener != null) {
-                        onTabChangedListener.onTabChanged(mCurrentTab);
-                    }
-                }
-            }
-        });
-        mScrollAnimation.setDuration(100);
-        mScrollAnimation.start();
-    }
-
-    /**
-     * 滑动是否正在执行
-     *
-     * @return
-     */
-    private boolean isTabScrolling() {
-        return mScrollAnimation != null && mScrollAnimation.isRunning();
-    }
-
     @Override
     protected void onDraw(Canvas canvas) {
         if (mTitles != null && mTitles.length > 1) {
+
             final int count = mTitles.length;
             final int averageWidth = getWidth() / count;
             final int paddingTop = getPaddingTop();
-            for (int i = 0; i < count; i++) {
 
+            for (int i = 0; i < count; i++) {
                 String title = mTitles[i];
                 mTitlePaint.getTextBounds(title, 0, title.length(), titleRect);
                 int baseline = paddingTop + getTextBaseline(titleRect.height(), mTitlePaint);
                 canvas.drawText(title, averageWidth / 2 + i * averageWidth, baseline, mTitlePaint);
-
-                if (mSmoothScroll) {
-                    if (i == mCurrentTab) {
-                        final int tabWidth = (int) (averageWidth * mTabWidthPercent);
-                        int startX = mAnimationTabStartX;
-                        int startY = paddingTop + titleRect.height() + mTabTopPadding;
-                        int endX = startX + tabWidth;
-                        int endY = startY;
-                        canvas.drawLine(startX, startY, endX, endY, mTabPaint);
-                    }
-                } else {
-                    if (i == mCurrentTab) {
-                        final int tabWidth = (int) (averageWidth * mTabWidthPercent);
-                        int startX = (averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth;
-                        int startY = paddingTop + titleRect.height() + mTabTopPadding;
-                        int endX = startX + tabWidth;
-                        int endY = startY;
-                        canvas.drawLine(startX, startY, endX, endY, mTabPaint);
-                    }
-                }
             }
+
+            final int tabWidth = (int) (averageWidth * mTabWidthPercent);
+            int startX = mScrollStartX;
+            int startY = paddingTop + titleRect.height() + mTabTopPadding;
+            int endX = startX + tabWidth;
+            int endY = startY;
+            canvas.drawLine(startX, startY, endX, endY, mTabPaint);
+
         }
     }
 
     private int getTextBaseline(int rectHeight, Paint paint) {
         Paint.FontMetricsInt fontMetrics = paint.getFontMetricsInt();
         return rectHeight / 2 - (fontMetrics.top + fontMetrics.bottom) / 2;
+    }
+
+    public interface OnTabChangedListener {
+        void onTabChanged(int currentTab);
+    }
+
+    private OnTabChangedListener onTabChangedListener;
+
+    public void setOnTabChangedListener(OnTabChangedListener onTabChangedListener) {
+        this.onTabChangedListener = onTabChangedListener;
     }
 }
