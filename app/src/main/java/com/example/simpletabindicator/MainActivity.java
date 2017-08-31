@@ -36,29 +36,7 @@ public class MainActivity extends AppCompatActivity {
         indicator = (SimpleTabIndicator) findViewById(R.id.tab_indicator);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         indicator.setViewPager(viewPager, TABS.toArray(new String[]{}));
-        indicator.setOnTabChangedListener(new SimpleTabIndicator.OnTabChangedListener() {
-            @Override
-            public void onTabChanged(int currentTab) {
-
-            }
-        });
         viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), TABS));
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                indicator.setCurrentTab(position, true);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
 
     }
 
