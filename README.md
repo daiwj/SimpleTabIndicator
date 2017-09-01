@@ -2,6 +2,8 @@
 
 一个简约而不简单的自定义ViewPager指示器
 
+<image src="./image/SimpleTabIndicator.gif" width="180px"/>
+
 **属性相关**
 ```
     <declare-styleable name="SimpleTabIndicator">
