@@ -42,9 +42,9 @@ String[] titles = {"云", "天河", "云天河", "小云云"};
 
 indicator = (SimpleTabIndicator) findViewById(R.id.tab_indicator);
 viewPager = (ViewPager) findViewById(R.id.view_pager);
-indicator.setViewPager(viewPager, titles);
-  
+
 // 跟随ViewPager联动
+indicator.setViewPager(viewPager, titles);
 viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), Arrays.asList(titles)));
   
 // 不跟随ViewPager联动
