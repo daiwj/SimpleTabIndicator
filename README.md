@@ -37,14 +37,42 @@
 ```
 
 **代码中使用**
-```
+```java
 String[] titles = {"云", "天河", "云天河", "小云云"};
 
 indicator = (SimpleTabIndicator) findViewById(R.id.tab_indicator);
 viewPager = (ViewPager) findViewById(R.id.view_pager);
 indicator.setViewPager(viewPager, titles);
+  
+// 跟随ViewPager联动
 viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), Arrays.asList(titles)));
-```
+  
+// 不跟随ViewPager联动
+indicator.setOnTabChangedListener(new SimpleTabIndicator.OnTabChangedListener() {
+    @Override
+    public void onTabChanged(int currentTab) {
+        viewPager.setCurrentItem(currentTab); 
+    }
+});
+
+
+viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+         indicator.setCurrentTab(position, true);
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+});
+```java
 
 # 如何联系我：
 
