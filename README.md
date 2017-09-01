@@ -72,7 +72,7 @@ viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
     }
 });
-```java
+```
 
 # 如何联系我：
 
