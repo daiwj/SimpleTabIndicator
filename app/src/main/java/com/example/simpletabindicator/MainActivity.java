@@ -6,9 +6,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -18,14 +17,6 @@ public class MainActivity extends AppCompatActivity {
 
     ViewPager viewPager;
 
-    List<String> TABS = new ArrayList<>(3);
-
-    {
-        TABS.add("抵用券");
-        TABS.add("加息券");
-        TABS.add("提现券");
-    }
-
     SimpleTabIndicator indicator;
 
     @Override
@@ -33,10 +24,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        String[] titles = {"云", "天河", "云天河", "小云云"};
+
         indicator = (SimpleTabIndicator) findViewById(R.id.tab_indicator);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
-        indicator.setViewPager(viewPager, TABS.toArray(new String[]{}));
-        viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), TABS));
+        indicator.setViewPager(viewPager, titles);
+        viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), Arrays.asList(titles)));
 
     }
 

@@ -40,16 +40,16 @@ public class SimpleTabIndicator extends View {
     private int mTabTopPadding; // 标签距离标题间距
     private float mTabWidthPercent; // 标签宽度百分比
 
-    private ViewPager mViewPager;
+    private ViewPager mViewPager; // 绑定的ViewPager
     /**
      * 标签切换回调
      */
-    public boolean mFollowPageScrolled; // 是否跟随ViewPager滚动
+    public boolean mFollowPageScrolled; // 是否与ViewPager联动
 
-    private int mCurrentTab = -1; // 当前标签索引
+    private int mCurrentTab = -1; // 当前标签索引位置
 
-    private int mScrollStartX;
-    private ValueAnimator mScrollAnimation;
+    private int mScrollStartX; // 指示器滚动起点坐标
+    private ValueAnimator mScrollAnimation; // 手动滚动动画
 
     public SimpleTabIndicator(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -83,7 +83,9 @@ public class SimpleTabIndicator extends View {
     }
 
     /**
-     * @param viewPager
+     * 绑定ViewPager
+     *
+     * @param viewPager 当viewpager为空时，指示器不会和ViewPager联动，ViewPager翻页时，指示器不会自动切换。</br>
      */
     public void setViewPager(final ViewPager viewPager, final String... titles) {
         if (viewPager != null) {
@@ -101,6 +103,7 @@ public class SimpleTabIndicator extends View {
                     if (!mFollowPageScrolled) {
                         setCurrentTab(position, true);
                     } else {
+                        Log.d(TAG, "onPageSelected currentTab: " + position);
                         mCurrentTab = position;
                     }
                 }
@@ -133,31 +136,43 @@ public class SimpleTabIndicator extends View {
      * @param scroll 是否需要滚动动画
      */
     public void setCurrentTab(final int tab, final boolean scroll) {
-        setCurrentTab(tab, scroll, false);
+        post(new Runnable() {
+            @Override
+            public void run() {
+                setCurrentTab(tab, scroll, false);
+            }
+        });
     }
 
     /**
      * 设置指定标签页
      *
-     * @param tab    标签页
-     * @param scroll 是否需要滚动动画
+     * @param tab      标签页
+     * @param scroll   是否需要滚动动画
+     * @param callback 标签切换时，是否回调切换状态
      */
     private void setCurrentTab(final int tab, final boolean scroll, final boolean callback) {
         if (mTitles != null && tab >= 0 && tab < mTitles.length && tab != mCurrentTab) {
 
+            if (mViewPager != null) {
+                if (mViewPager.getAdapter().getCount() != mTitles.length) {
+                    throw new IllegalArgumentException("ViewPager's page count must be same as titles'");
+                }
+            }
+
             final int count = mTitles.length;
             final int averageWidth = getWidth() / count;
             final int tabWidth = (int) (averageWidth * mTabWidthPercent);
-            final int startX = (averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth;
-            final int endX = startX + averageWidth * (tab - mCurrentTab);
 
             mCurrentTab = tab;
 
             if (scroll) {
+                final int startX = (averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth;
+                final int endX = startX + averageWidth * (tab - mCurrentTab);
                 smoothScrollTo(tab, startX, endX, callback);
             } else {
                 mScrollStartX = (averageWidth - tabWidth) / 2 + tab * averageWidth;
-                postInvalidate();
+                invalidate();
 
                 if (mViewPager != null) {
                     mViewPager.setCurrentItem(tab, false);
@@ -175,7 +190,7 @@ public class SimpleTabIndicator extends View {
      *
      * @param tab           滚动的tab
      * @param offsetPercent ViewPager当前页滚动距离百分比
-     * @param offsetPixels ViewPager当前页滚动距离
+     * @param offsetPixels  ViewPager当前页滚动距离
      */
     private void followPageScroll(int tab, float offsetPercent, int offsetPixels) {
         if (offsetPercent == 0f || offsetPixels == 0) {
@@ -186,15 +201,16 @@ public class SimpleTabIndicator extends View {
         final int averageWidth = getWidth() / tabCount;
         final int tabWidth = (int) (averageWidth * mTabWidthPercent);
 
+        // 这个代码等于下面的条件判断语句
 //        mScrollStartX = (int) ((averageWidth - tabWidth) / 2
 //                + mCurrentTab * averageWidth + offsetPercent * averageWidth)
 //                - (mCurrentTab - tab) * averageWidth;
 
         if (tab == mCurrentTab) { // 往左滑动 或者 到达左边边界
-            Log.d(TAG, "tab == mCurrentTab tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent: " + offsetPercent);
+            Log.d(TAG, "向左滑动 tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent" + offsetPercent);
             mScrollStartX = (int) ((averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth + offsetPercent * averageWidth);
         } else if (tab < mCurrentTab) { // 往右滑动  或者 到达右边边界
-            Log.d(TAG, "tab < mCurrentTab tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent: " + offsetPercent);
+            Log.d(TAG, "向右滑动 tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent" + offsetPercent);
             mScrollStartX = (int) ((averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth - (1 - offsetPercent) * averageWidth);
         }
 
@@ -246,11 +262,15 @@ public class SimpleTabIndicator extends View {
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 
-        if (heightMode == MeasureSpec.AT_MOST) {
+        if (heightMode == MeasureSpec.AT_MOST) { // 布局文件里面设置的高度是wrap_content
             mTitlePaint.getTextBounds(TAG, 0, TAG.length(), titleRect);
-            int heightSize = getPaddingTop() + titleRect.height() + mTabTopPadding + mTabHeight + getPaddingBottom();
+            int heightSize = getPaddingTop()  // 顶部padding
+                    + titleRect.height()  // 标题文本内容高度
+                    + mTabTopPadding // 标签距离标题间距
+                    + mTabHeight // 标签高度
+                    + getPaddingBottom(); // 底部padding
             setMeasuredDimension(widthSize, heightSize);
-        } else {
+        } else { // 非wrap_content的高度模式，不解释了
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
     }
@@ -280,22 +300,44 @@ public class SimpleTabIndicator extends View {
     protected void onDraw(Canvas canvas) {
         if (mTitles != null && mTitles.length > 1) {
 
-            final int count = mTitles.length;
-            final int averageWidth = getWidth() / count;
-            final int paddingTop = getPaddingTop();
+            final int count = mTitles.length; // 标题数量
+            final int averageWidth = getWidth() / count; // 屏幕平均宽度
+            final int paddingTop = getPaddingTop(); // 上边距
 
             for (int i = 0; i < count; i++) {
-                String title = mTitles[i];
-                mTitlePaint.getTextBounds(title, 0, title.length(), titleRect);
-                int baseline = paddingTop + getTextBaseline(titleRect.height(), mTitlePaint);
-                canvas.drawText(title, averageWidth / 2 + i * averageWidth, baseline, mTitlePaint);
+                String title = mTitles[i]; // 对应标题
+                mTitlePaint.getTextBounds(title, 0, title.length(), titleRect); // 获取标题内容宽高
+                // Paint.Align.LEFT
+//                final int x = (averageWidth - titleRect.width()) / 2 + i * averageWidth;
+
+                // Paint.Align.CENTER
+                final int x = averageWidth / 2 + i * averageWidth;
+                final int baseline = paddingTop + getTextBaseline(titleRect.height(), mTitlePaint);
+                canvas.drawText(title, x, baseline, mTitlePaint);
             }
 
+            // 标签宽度 = 屏幕平均宽度 * 标签宽度百分比
             final int tabWidth = (int) (averageWidth * mTabWidthPercent);
+
+            // 标签起始 x = 动态设置的标签起始坐标
             int startX = mScrollStartX;
-            int startY = paddingTop + titleRect.height() + mTabTopPadding;
+
+            // 标签起始 y = 上边距
+            //           + 标题内容高度
+            //           + 标签距离标题间距
+            //           + 标签一半高度（画笔宽度一半）（为什么要加上标签一半高度？）
+            //
+            int startY = paddingTop
+                    + titleRect.height()
+                    + mTabTopPadding
+                    + mTabHeight / 2;
+
+            // 标签结束 x = 标签起始坐标 + 标签宽度
             int endX = startX + tabWidth;
+
+            // 标签结束 y = 标签起始坐标 + 标签宽度
             int endY = startY;
+
             canvas.drawLine(startX, startY, endX, endY, mTabPaint);
 
         }
@@ -307,11 +349,19 @@ public class SimpleTabIndicator extends View {
     }
 
     public interface OnTabChangedListener {
+        /**
+         * @param currentTab 当前选中了哪个标签
+         */
         void onTabChanged(int currentTab);
     }
 
     private OnTabChangedListener onTabChangedListener;
 
+    /**
+     * 设置标签变化回调
+     *
+     * @param onTabChangedListener
+     */
     public void setOnTabChangedListener(OnTabChangedListener onTabChangedListener) {
         this.onTabChangedListener = onTabChangedListener;
     }

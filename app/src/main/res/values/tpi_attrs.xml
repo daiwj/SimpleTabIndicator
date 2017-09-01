@@ -7,6 +7,6 @@
         <attr name="sti_tabColor" format="color" /> <!-- 标签颜色 -->
         <attr name="sti_tabTopPadding" format="dimension"/> <!-- 标签距离标题间距 -->
         <attr name="sti_tabWidthPercent" format="float"/> <!-- 标签宽度百分比 -->
-        <attr name="sti_followPageScrolled" format="boolean"/> <!-- 是否跟随ViewPager滚动 -->
+        <attr name="sti_followPageScrolled" format="boolean"/> <!-- 是否与ViewPager联动 -->
     </declare-styleable>
 </resources>
