@@ -2,7 +2,7 @@
 
 一个简约而不简单的自定义ViewPager指示器
 
-####效果图：
+#### 效果图：  
 <image src="./image/SimpleTabIndicator.gif" />
 
 **属性相关**
@@ -76,4 +76,4 @@ viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
 # 如何联系我：
 
-QQ：129830085，QQ群：83936534
+QQ：1298300385，QQ群：83936534
