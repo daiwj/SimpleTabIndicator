@@ -164,8 +164,6 @@ public class SimpleTabIndicator extends View {
             final int averageWidth = getWidth() / count;
             final int tabWidth = (int) (averageWidth * mTabWidthPercent);
 
-            mCurrentTab = tab;
-
             if (scroll) {
                 final int startX = (averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth;
                 final int endX = startX + averageWidth * (tab - mCurrentTab);
@@ -182,6 +180,8 @@ public class SimpleTabIndicator extends View {
                     onTabChangedListener.onTabChanged(tab);
                 }
             }
+
+            mCurrentTab = tab;
         }
     }
 
