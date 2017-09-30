@@ -28,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
 
         indicator = (SimpleTabIndicator) findViewById(R.id.tab_indicator);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
-        indicator.setViewPager(viewPager, titles);
         viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), Arrays.asList(titles)));
+        indicator.setViewPager(viewPager, titles);
 
     }
 

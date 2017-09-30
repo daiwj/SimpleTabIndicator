@@ -9,7 +9,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -88,6 +90,13 @@ public class SimpleTabIndicator extends View {
      * @param viewPager 当viewpager为空时，指示器不会和ViewPager联动，ViewPager翻页时，指示器不会自动切换。</br>
      */
     public void setViewPager(final ViewPager viewPager, final String... titles) {
+
+        if (titles == null || titles.length < 2) {
+            throw new IllegalArgumentException("titles must not be null or its length must not be less than 2.");
+        } else {
+            mTitles = titles;
+        }
+
         if (viewPager != null) {
             viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
@@ -103,7 +112,6 @@ public class SimpleTabIndicator extends View {
                     if (!mFollowPageScrolled) {
                         setCurrentTab(position, true);
                     } else {
-                        Log.d(TAG, "onPageSelected currentTab: " + position);
                         mCurrentTab = position;
                     }
                 }
@@ -115,15 +123,23 @@ public class SimpleTabIndicator extends View {
                     }
                 }
             });
+            viewPager.addOnAdapterChangeListener(new ViewPager.OnAdapterChangeListener() {
+                @Override
+                public void onAdapterChanged(@NonNull ViewPager viewPager, @Nullable PagerAdapter oldAdapter, @Nullable PagerAdapter newAdapter) {
+                    if (newAdapter != null && newAdapter.getCount() != titles.length) {
+                        throw new IllegalArgumentException("ViewPager's page count must be same as titles'");
+                    }
+                }
+            });
+
+            final PagerAdapter adapter = viewPager.getAdapter();
+            if (adapter != null && adapter.getCount() != titles.length) {
+                throw new IllegalArgumentException("ViewPager's page count must be same as titles'");
+            }
+
             mViewPager = viewPager;
         } else {
             mFollowPageScrolled = false;
-        }
-
-        if (titles == null || titles.length < 2) {
-            throw new IllegalArgumentException("titles must not be null or its length must not be less than 2.");
-        } else {
-            mTitles = titles;
         }
 
         setCurrentTab(0, false);
@@ -153,12 +169,6 @@ public class SimpleTabIndicator extends View {
      */
     private void setCurrentTab(final int tab, final boolean scroll, final boolean callback) {
         if (mTitles != null && tab >= 0 && tab < mTitles.length && tab != mCurrentTab) {
-
-            if (mViewPager != null) {
-                if (mViewPager.getAdapter().getCount() != mTitles.length) {
-                    throw new IllegalArgumentException("ViewPager's page count must be same as titles'");
-                }
-            }
 
             final int count = mTitles.length;
             final int averageWidth = getWidth() / count;
@@ -202,17 +212,17 @@ public class SimpleTabIndicator extends View {
         final int tabWidth = (int) (averageWidth * mTabWidthPercent);
 
         // 这个代码等于下面的条件判断语句
-//        mScrollStartX = (int) ((averageWidth - tabWidth) / 2
-//                + mCurrentTab * averageWidth + offsetPercent * averageWidth)
-//                - (mCurrentTab - tab) * averageWidth;
+        mScrollStartX = (int) ((averageWidth - tabWidth) / 2
+                + mCurrentTab * averageWidth + offsetPercent * averageWidth)
+                - (mCurrentTab - tab) * averageWidth;
 
-        if (tab == mCurrentTab) { // 往左滑动 或者 到达左边边界
-            Log.d(TAG, "向左滑动 tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent" + offsetPercent);
-            mScrollStartX = (int) ((averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth + offsetPercent * averageWidth);
-        } else if (tab < mCurrentTab) { // 往右滑动  或者 到达右边边界
-            Log.d(TAG, "向右滑动 tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent" + offsetPercent);
-            mScrollStartX = (int) ((averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth - (1 - offsetPercent) * averageWidth);
-        }
+//        if (tab == mCurrentTab) { // 往左滑动 或者 到达左边边界
+//            Log.d(TAG, "向左滑动 tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent" + offsetPercent);
+//            mScrollStartX = (int) ((averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth + offsetPercent * averageWidth);
+//        } else if (tab < mCurrentTab) { // 往右滑动  或者 到达右边边界
+//            Log.d(TAG, "向右滑动 tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent" + offsetPercent);
+//            mScrollStartX = (int) ((averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth - (1 - offsetPercent) * averageWidth);
+//        }
 
         invalidate();
     }
