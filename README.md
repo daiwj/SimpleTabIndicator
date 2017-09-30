@@ -3,7 +3,7 @@
 一个简约而不简单的自定义ViewPager指示器
 
 # 效果图：  
-<image src="./image/SimpleTabIndicator.gif" />
+<image src="./image/SimpleTabIndicator_201709301730.gif" />
 
 # **属性相关**
 ```xml
