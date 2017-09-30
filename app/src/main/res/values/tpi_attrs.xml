@@ -2,7 +2,8 @@
 <resources>
     <declare-styleable name="SimpleTabIndicator">
         <attr name="sti_titleSize" format="dimension" /> <!-- 标题大小 -->
-        <attr name="sti_titleColor" format="color" />  <!-- 标题颜色 -->
+        <attr name="sti_checkedTitleColor" format="color" />  <!-- 标题选中颜色 -->
+        <attr name="sti_unCheckedTitleColor" format="color" />  <!-- 标题未选中颜色 -->
         <attr name="sti_tabHeight" format="dimension" /> <!-- 标签高度 -->
         <attr name="sti_tabColor" format="color" /> <!-- 标签颜色 -->
         <attr name="sti_tabTopPadding" format="dimension"/> <!-- 标签距离标题间距 -->

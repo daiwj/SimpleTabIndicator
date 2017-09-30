@@ -14,7 +14,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -34,7 +33,7 @@ public class SimpleTabIndicator extends View {
     private Paint mTitlePaint;
     private final Rect titleRect = new Rect();
     private int mTitleSize; // 标题大小
-    private int mTitleColor; // 标题颜色
+    private int mCheckedTitleColor, mUncheckedTitleColor; // 标题颜色
 
     private Paint mTabPaint;
     private int mTabHeight; // 标签高度
@@ -60,7 +59,8 @@ public class SimpleTabIndicator extends View {
         final float density = context.getResources().getDisplayMetrics().density;
 
         mTitleSize = (int) ta.getDimension(R.styleable.SimpleTabIndicator_sti_titleSize, density * 18f);
-        mTitleColor = ta.getColor(R.styleable.SimpleTabIndicator_sti_titleColor, Color.RED);
+        mCheckedTitleColor = ta.getColor(R.styleable.SimpleTabIndicator_sti_checkedTitleColor, Color.RED);
+        mUncheckedTitleColor = ta.getColor(R.styleable.SimpleTabIndicator_sti_unCheckedTitleColor, Color.RED);
         mTabHeight = (int) ta.getDimension(R.styleable.SimpleTabIndicator_sti_tabHeight, density * 3f);
         mTabColor = ta.getColor(R.styleable.SimpleTabIndicator_sti_tabColor, Color.RED);
         mTabTopPadding = (int) ta.getDimension(R.styleable.SimpleTabIndicator_sti_tabTopPadding, density * 12f);
@@ -75,7 +75,7 @@ public class SimpleTabIndicator extends View {
         mTitlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mTitlePaint.setTextSize(mTitleSize);
         mTitlePaint.setTextAlign(Paint.Align.CENTER);
-        mTitlePaint.setColor(mTitleColor);
+        mTitlePaint.setColor(mCheckedTitleColor);
 
         mTabPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTabPaint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -170,13 +170,17 @@ public class SimpleTabIndicator extends View {
     private void setCurrentTab(final int tab, final boolean scroll, final boolean callback) {
         if (mTitles != null && tab >= 0 && tab < mTitles.length && tab != mCurrentTab) {
 
+            final int currentTab = mCurrentTab;
+
             final int count = mTitles.length;
             final int averageWidth = getWidth() / count;
             final int tabWidth = (int) (averageWidth * mTabWidthPercent);
 
+            mCurrentTab = tab;
+
             if (scroll) {
-                final int startX = (averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth;
-                final int endX = startX + averageWidth * (tab - mCurrentTab);
+                final int startX = (averageWidth - tabWidth) / 2 + currentTab * averageWidth;
+                final int endX = startX + averageWidth * (tab - currentTab);
                 smoothScrollTo(tab, startX, endX, callback);
             } else {
                 mScrollStartX = (averageWidth - tabWidth) / 2 + tab * averageWidth;
@@ -190,8 +194,6 @@ public class SimpleTabIndicator extends View {
                     onTabChangedListener.onTabChanged(tab);
                 }
             }
-
-            mCurrentTab = tab;
         }
     }
 
@@ -212,15 +214,13 @@ public class SimpleTabIndicator extends View {
         final int tabWidth = (int) (averageWidth * mTabWidthPercent);
 
         // 这个代码等于下面的条件判断语句
-        mScrollStartX = (int) ((averageWidth - tabWidth) / 2
-                + mCurrentTab * averageWidth + offsetPercent * averageWidth)
-                - (mCurrentTab - tab) * averageWidth;
+        mScrollStartX = (int) ((averageWidth - tabWidth) / 2 + (tab + offsetPercent) * averageWidth);
 
 //        if (tab == mCurrentTab) { // 往左滑动 或者 到达左边边界
-//            Log.d(TAG, "向左滑动 tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent" + offsetPercent);
+//            Log.d(TAG, "向左滑动 tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent: " + offsetPercent);
 //            mScrollStartX = (int) ((averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth + offsetPercent * averageWidth);
 //        } else if (tab < mCurrentTab) { // 往右滑动  或者 到达右边边界
-//            Log.d(TAG, "向右滑动 tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent" + offsetPercent);
+//            Log.d(TAG, "向右滑动 tab: " + tab + ", currentTab: " + mCurrentTab + ", offsetPercent: " + offsetPercent);
 //            mScrollStartX = (int) ((averageWidth - tabWidth) / 2 + mCurrentTab * averageWidth - (1 - offsetPercent) * averageWidth);
 //        }
 
@@ -319,6 +319,8 @@ public class SimpleTabIndicator extends View {
                 mTitlePaint.getTextBounds(title, 0, title.length(), titleRect); // 获取标题内容宽高
                 // Paint.Align.LEFT
 //                final int x = (averageWidth - titleRect.width()) / 2 + i * averageWidth;
+
+                mTitlePaint.setColor(mCurrentTab == i ? mCheckedTitleColor : mUncheckedTitleColor);
 
                 // Paint.Align.CENTER
                 final int x = averageWidth / 2 + i * averageWidth;

@@ -2,14 +2,15 @@
 
 一个简约而不简单的自定义ViewPager指示器
 
-#### 效果图：  
+# 效果图：  
 <image src="./image/SimpleTabIndicator.gif" />
 
-**属性相关**
-```
+# **属性相关**
+```xml
     <declare-styleable name="SimpleTabIndicator">
         <attr name="sti_titleSize" format="dimension" /> <!-- 标题大小 -->
-        <attr name="sti_titleColor" format="color" />  <!-- 标题颜色 -->
+        <attr name="sti_checkedTitleColor" format="color" />  <!-- 标题选中颜色 -->
+        <attr name="sti_unCheckedTitleColor" format="color" />  <!-- 标题未选中颜色 -->
         <attr name="sti_tabHeight" format="dimension" /> <!-- 标签高度 -->
         <attr name="sti_tabColor" format="color" /> <!-- 标签颜色 -->
         <attr name="sti_tabTopPadding" format="dimension"/> <!-- 标签距离标题间距 -->
@@ -18,9 +19,9 @@
     </declare-styleable>
 ```
 
-**布局中使用**
+# **布局中使用**
 
-```
+```xml
     <com.example.simpletabindicator.SimpleTabIndicator
         android:id="@+id/tab_indicator"
         android:layout_width="match_parent"
@@ -33,11 +34,12 @@
         app:sti_tabHeight="4dp"
         app:sti_tabTopPadding="15dp"
         app:sti_tabWidthPercent="0.8"
-        app:sti_titleColor="#ff0000"
+        app:sti_checkedTitleColor="#ff0000"
+        app:sti_unCheckedTitleColor="#222222"
         app:sti_titleSize="20dp" />
 ```
 
-**代码中使用**
+# **代码中使用**
 ```java
 String[] titles = {"云", "天河", "云天河", "小云云"};
 
