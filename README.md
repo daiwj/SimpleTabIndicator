@@ -57,6 +57,7 @@ indicator.setOnTabChangedListener(new SimpleTabIndicator.OnTabChangedListener() 
         viewPager.setCurrentItem(currentTab); 
     }
 });
+indicator.setViewPager(null, titles);
 
 viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
     @Override
