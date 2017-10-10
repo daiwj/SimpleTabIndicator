@@ -26,10 +26,37 @@ public class MainActivity extends AppCompatActivity {
 
         String[] titles = {"云", "天河", "云天河", "小云云"};
 
+//        indicator = (SimpleTabIndicator) findViewById(R.id.tab_indicator);
+//        viewPager = (ViewPager) findViewById(R.id.view_pager);
+//        viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), Arrays.asList(titles)));
+//        indicator.setViewPager(viewPager, titles);
+
         indicator = (SimpleTabIndicator) findViewById(R.id.tab_indicator);
+        indicator.addOnTabChangedListener(new SimpleTabIndicator.OnTabChangedListener() {
+            @Override
+            public void onTabChanged(int currentTab) {
+                viewPager.setCurrentItem(currentTab);
+            }
+        });
+        indicator.setViewPager(null, titles);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                indicator.setCurrentTab(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), Arrays.asList(titles)));
-        indicator.setViewPager(viewPager, titles);
 
     }
 

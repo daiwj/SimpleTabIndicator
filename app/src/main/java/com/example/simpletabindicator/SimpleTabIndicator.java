@@ -44,10 +44,8 @@ public class SimpleTabIndicator extends View {
     private float mTabWidthPercent; // 标签宽度百分比
 
     private ViewPager mViewPager; // 绑定的ViewPager
-    /**
-     * 标签切换回调
-     */
-    public boolean mFollowPageScrolled; // 是否与ViewPager联动
+    public boolean mEnableFollowPageScrolled; // 是否与ViewPager联动
+    public boolean mEnableTabAnimation; // 标签是否执行滚动动画
 
     private int mCurrentTab = -1; // 当前标签索引位置
 
@@ -71,7 +69,8 @@ public class SimpleTabIndicator extends View {
         mTabWidthPercent = mTabWidthPercent > 1.0f ? 1.0f : mTabWidthPercent;
         mTabWidthPercent = mTabWidthPercent < 0.0f ? 0.5f : mTabWidthPercent;
 
-        mFollowPageScrolled = ta.getBoolean(R.styleable.SimpleTabIndicator_sti_followPageScrolled, false);
+        mEnableFollowPageScrolled = ta.getBoolean(R.styleable.SimpleTabIndicator_sti_enableFollowPageScrolled, false);
+        mEnableTabAnimation = ta.getBoolean(R.styleable.SimpleTabIndicator_sti_enableTabAnimation, true);
 
         ta.recycle();
 
@@ -92,6 +91,7 @@ public class SimpleTabIndicator extends View {
      * 绑定ViewPager
      *
      * @param viewPager 当viewpager为空时，指示器不会和ViewPager联动，ViewPager翻页时，指示器不会自动切换。</br>
+     * @param titles 标题
      */
     public void setViewPager(final ViewPager viewPager, final String... titles) {
 
@@ -106,14 +106,14 @@ public class SimpleTabIndicator extends View {
 
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                    if (mFollowPageScrolled) {
+                    if (mEnableFollowPageScrolled) {
                         followPageScroll(position, positionOffset, positionOffsetPixels);
                     }
                 }
 
                 @Override
                 public void onPageSelected(int position) {
-                    if (!mFollowPageScrolled) {
+                    if (!mEnableFollowPageScrolled) {
                         setCurrentTab(position, true);
                     } else {
                         mCurrentTab = position;
@@ -143,10 +143,24 @@ public class SimpleTabIndicator extends View {
 
             mViewPager = viewPager;
         } else {
-            mFollowPageScrolled = false;
+            mEnableFollowPageScrolled = false;
         }
 
         setCurrentTab(0, false);
+    }
+
+    /**
+     * 设置指定标签页
+     *
+     * @param tab    标签页
+     */
+    public void setCurrentTab(final int tab) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                setCurrentTab(tab, mEnableTabAnimation, false);
+            }
+        });
     }
 
     /**
@@ -182,7 +196,7 @@ public class SimpleTabIndicator extends View {
 
             mCurrentTab = tab;
 
-            if (scroll) {
+            if (mEnableTabAnimation && scroll) {
                 final int startX = (averageWidth - tabWidth) / 2 + currentTab * averageWidth;
                 final int endX = startX + averageWidth * (tab - currentTab);
                 smoothScrollTo(tab, startX, endX, callback);
