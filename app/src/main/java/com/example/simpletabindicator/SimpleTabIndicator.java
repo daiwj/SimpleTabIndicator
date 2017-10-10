@@ -71,6 +71,8 @@ public class SimpleTabIndicator extends View {
 
         mFollowPageScrolled = ta.getBoolean(R.styleable.SimpleTabIndicator_sti_followPageScrolled, false);
 
+        ta.recycle();
+
         mTitlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTitlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mTitlePaint.setTextSize(mTitleSize);
