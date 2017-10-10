@@ -17,6 +17,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+
 /**
  * 简单的ViewPager指示器，标签数量建议在 2~5 个<br/>
  * 支持动态设置标签，支持点击切换标签，支持滚动动画<br/>
@@ -192,8 +194,10 @@ public class SimpleTabIndicator extends View {
                     mViewPager.setCurrentItem(tab, false);
                 }
 
-                if (callback && onTabChangedListener != null) {
-                    onTabChangedListener.onTabChanged(tab);
+                if (callback && mOnTabChangedListeners != null) {
+                    for (OnTabChangedListener onTabChangedListener : mOnTabChangedListeners) {
+                        onTabChangedListener.onTabChanged(tab);
+                    }
                 }
             }
         }
@@ -251,8 +255,10 @@ public class SimpleTabIndicator extends View {
                     mViewPager.setCurrentItem(tab, false);
                 }
 
-                if (callback && onTabChangedListener != null) {
-                    onTabChangedListener.onTabChanged(tab);
+                if (callback && mOnTabChangedListeners != null) {
+                    for (OnTabChangedListener onTabChangedListener : mOnTabChangedListeners) {
+                        onTabChangedListener.onTabChanged(tab);
+                    }
                 }
             }
         });
@@ -369,14 +375,14 @@ public class SimpleTabIndicator extends View {
         void onTabChanged(int currentTab);
     }
 
-    private OnTabChangedListener onTabChangedListener;
+    private final ArrayList<OnTabChangedListener> mOnTabChangedListeners = new ArrayList<>();
 
     /**
      * 设置标签变化回调
      *
      * @param onTabChangedListener
      */
-    public void setOnTabChangedListener(OnTabChangedListener onTabChangedListener) {
-        this.onTabChangedListener = onTabChangedListener;
+    public void addOnTabChangedListener(OnTabChangedListener onTabChangedListener) {
+        mOnTabChangedListeners.add(onTabChangedListener);
     }
 }
