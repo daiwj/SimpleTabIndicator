@@ -165,21 +165,21 @@ public class SimpleTabIndicator extends View {
     /**
      * 设置指定标签页
      *
-     * @param tab 标签页
+     * @param tabIndex 标签页
      */
-    public void setCurrentTab(final int tab) {
-        setCurrentTab(tab, mEnableTabAnimation);
+    public void setCurrentTab(final int tabIndex) {
+        setCurrentTab(tabIndex, mEnableTabAnimation);
     }
 
     /**
      * 设置指定标签页
      *
-     * @param tab          标签页
+     * @param tabIndex          标签页
      * @param tabAnimation 是否需要滚动动画
      */
-    public void setCurrentTab(final int tab, final boolean tabAnimation) {
-        if (tab >= 0 && tab < mTabs.size() && tab != mCurrentTabIndex) {
-            setTab(tab, tabAnimation);
+    public void setCurrentTab(final int tabIndex, final boolean tabAnimation) {
+        if (tabIndex >= 0 && tabIndex < mTabs.size() && tabIndex != mCurrentTabIndex) {
+            setTab(tabIndex, tabAnimation);
         }
     }
 
