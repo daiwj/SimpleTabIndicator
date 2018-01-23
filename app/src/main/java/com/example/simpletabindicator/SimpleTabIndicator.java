@@ -393,42 +393,21 @@ public class SimpleTabIndicator extends View {
         final int count = mTabs.size(); // 标题数量
         final int paddingTop = getPaddingTop(); // 上边距
 
-        if (mStretchMode == STRETCH_WIDTH) {
-            for (int i = 0; i < count; i++) {
-
-//                final int averageWidth = getWidth() / count; // 屏幕平均宽度
-                // Paint.Align.LEFT
-//                final int x = (averageWidth - titleRect.width()) / 2 + i * averageWidth;
-
-                // Paint.Align.RIGHT
-//                final int x = (averageWidth + titleRect.width()) / 2 + i * averageWidth;
-
-                // Paint.Align.CENTER
-//                final int x = averageWidth / 2 + i * averageWidth;
-
-                Tab tab = mTabs.get(i);
-                mTitlePaint.setColor(mCurrentTabIndex == i ? mCheckedTitleColor : mUncheckedTitleColor);
-                final int baseline = paddingTop + getTextBaseline(titleRect.height(), mTitlePaint);
-                canvas.drawText(tab.title, tab.centerX, baseline, mTitlePaint);
-            }
-        } else if (mStretchMode == STRETCH_SPACE) {
-            for (int i = 0; i < count; i++) {
-                Tab tab = mTabs.get(i);
-                mTitlePaint.setColor(mCurrentTabIndex == i ? mCheckedTitleColor : mUncheckedTitleColor);
-                final int baseline = paddingTop + getTextBaseline(titleRect.height(), mTitlePaint);
-                canvas.drawText(tab.title, tab.centerX, baseline, mTitlePaint);
-            }
-
+        for (int i = 0; i < count; i++) {
+            Tab tab = mTabs.get(i);
+            mTitlePaint.setColor(mCurrentTabIndex == i ? mCheckedTitleColor : mUncheckedTitleColor);
+            final int baseline = paddingTop + getTextBaseline(titleRect.height(), mTitlePaint);
+            canvas.drawText(tab.title, tab.centerX, baseline, mTitlePaint);
         }
 
         // 标签起始 x = 动态设置的标签起始坐标
         int startX = mScrollStartX;
 
-        // 标签起始 y = 上边距
-        //           + 标题内容高度
-        //           + 标签距离标题间距
-        //           + 标签一半高度（画笔宽度一半）（为什么要加上标签一半高度？）
-        //
+        /** 标签起始 y = 上边距
+         *           + 标题内容高度
+         *           + 标签距离标题间距
+         *           + 标签一半高度（画笔宽度一半）（为什么要加上标签一半高度？）
+         */
         int startY = paddingTop
                 + titleRect.height()
                 + mTabTopPadding
@@ -458,9 +437,9 @@ public class SimpleTabIndicator extends View {
 
     public interface OnTabChangedListener {
         /**
-         * @param currentTab 当前选中了哪个标签
+         * @param currentTabIndex 当前选中了哪个标签
          */
-        void onTabChanged(int currentTab);
+        void onTabChanged(int currentTabIndex);
 
     }
 
