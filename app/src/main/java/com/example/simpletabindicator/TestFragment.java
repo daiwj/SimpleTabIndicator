@@ -26,11 +26,4 @@ public class TestFragment extends Fragment {
 
         return contentView;
     }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        Log.d("TestFragment", "onStart");
-    }
 }

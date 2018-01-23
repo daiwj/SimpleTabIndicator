@@ -6,19 +6,39 @@
     android:orientation="vertical">
 
     <com.example.simpletabindicator.SimpleTabIndicator
-        android:id="@+id/tab_indicator"
+        android:id="@+id/tab_indicator1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#ffcccc"
-        android:paddingBottom="10dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
         android:paddingTop="10dp"
         app:sti_checkedTitleColor="#ff0000"
-        app:sti_enableFollowPageScrolled="true"
+        app:sti_enableFollowPageScroll="true"
+        app:sti_stretch_mode="stretch_width"
         app:sti_tabColor="#ff0000"
         app:sti_tabHeight="4dp"
         app:sti_tabTopPadding="15dp"
-        app:sti_tabWidthPercent="0.8"
-        app:sti_titleSize="20dp"
+        app:sti_titleSize="15dp"
+        app:sti_unCheckedTitleColor="#222222" />
+
+    <com.example.simpletabindicator.SimpleTabIndicator
+        android:id="@+id/tab_indicator2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#ffcccc"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingTop="10dp"
+        app:sti_checkedTitleColor="#ff0000"
+        app:sti_enableFollowPageScroll="true"
+        app:sti_stretch_mode="stretch_space"
+        app:sti_tabColor="#ff0000"
+        app:sti_tabHeight="4dp"
+        app:sti_tabTopPadding="15dp"
+        app:sti_titlePadding="4dp"
+        app:sti_titleSize="15dp"
         app:sti_unCheckedTitleColor="#222222" />
 
     <android.support.v4.view.ViewPager

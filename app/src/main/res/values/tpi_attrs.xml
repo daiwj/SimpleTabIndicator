@@ -6,9 +6,14 @@
         <attr name="sti_unCheckedTitleColor" format="color" />  <!-- 标题未选中颜色 -->
         <attr name="sti_tabHeight" format="dimension" /> <!-- 标签高度 -->
         <attr name="sti_tabColor" format="color" /> <!-- 标签颜色 -->
-        <attr name="sti_tabTopPadding" format="dimension"/> <!-- 标签距离标题间距 -->
-        <attr name="sti_tabWidthPercent" format="float"/> <!-- 标签宽度百分比 -->
-        <attr name="sti_enableFollowPageScrolled" format="boolean"/> <!-- 是否与ViewPager联动 -->
-        <attr name="sti_enableTabAnimation" format="boolean"/> <!-- 标签是否执行滚动动画 -->
+        <attr name="sti_tabTopPadding" format="dimension" /> <!-- 标签距离标题间距 -->
+        <attr name="sti_tabWidthPercent" format="float" /> <!-- 标签宽度百分比 -->
+        <attr name="sti_enableFollowPageScroll" format="boolean" /> <!-- 是否与ViewPager联动 -->
+        <attr name="sti_enableTabAnimation" format="boolean" /> <!-- 标签是否执行滚动动画 -->
+        <attr name="sti_stretch_mode"> <!-- 间距拉伸模式 -->
+            <enum name="stretch_width" value="0" /> <!-- 宽度填充-->
+            <enum name="stretch_space" value="1" /> <!-- 间距填充-->
+        </attr>
+        <attr name="sti_titlePadding" format="dimension" /> <!-- 标题padding 仅sti_stretch_mode为stretch_space时有效 -->
     </declare-styleable>
 </resources>
