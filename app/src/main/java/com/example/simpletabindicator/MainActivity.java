@@ -18,7 +18,6 @@ public class MainActivity extends AppCompatActivity {
     ViewPager viewPager;
 
     SimpleTabIndicator indicator;
-
     SimpleTabIndicator indicator2;
 
     @Override
@@ -26,30 +25,28 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String[] titles1 = {"等额本息", "按月付息", "还本付息", "其他产品"};
-        String[] titles2 = {"等额本息", "按月付息", "还本付息", "其他产品"};
+        String[] titles = {"等额本息", "还本付息", "到期还本付息", "其他产品"};
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
-        viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), Arrays.asList(titles1)));
+        viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), Arrays.asList(titles)));
 
         indicator = (SimpleTabIndicator) findViewById(R.id.tab_indicator1);
+        indicator.setViewPager(viewPager, titles);
         indicator.addOnTabChangedListener(new SimpleTabIndicator.OnTabChangedListener() {
             @Override
             public void onTabChanged(int currentTabIndex) {
                 indicator2.setCurrentTab(currentTabIndex);
             }
         });
-        indicator.setViewPager(viewPager, titles1);
 
         indicator2 = (SimpleTabIndicator) findViewById(R.id.tab_indicator2);
+        indicator2.setViewPager(viewPager, titles);
         indicator2.addOnTabChangedListener(new SimpleTabIndicator.OnTabChangedListener() {
             @Override
             public void onTabChanged(int currentTabIndex) {
                 indicator.setCurrentTab(currentTabIndex);
             }
         });
-        indicator2.setViewPager(viewPager, titles2);
-
     }
 
     private class MyAdapter extends FragmentPagerAdapter {

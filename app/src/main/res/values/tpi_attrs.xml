@@ -4,16 +4,20 @@
         <attr name="sti_titleSize" format="dimension" /> <!-- 标题大小 -->
         <attr name="sti_checkedTitleColor" format="color" />  <!-- 标题选中颜色 -->
         <attr name="sti_unCheckedTitleColor" format="color" />  <!-- 标题未选中颜色 -->
-        <attr name="sti_tabHeight" format="dimension" /> <!-- 标签高度 -->
-        <attr name="sti_tabColor" format="color" /> <!-- 标签颜色 -->
-        <attr name="sti_tabTopPadding" format="dimension" /> <!-- 标签距离标题间距 -->
-        <attr name="sti_tabWidthPercent" format="float" /> <!-- 标签宽度百分比 -->
+        <attr name="sti_titlePadding" format="dimension" /> <!-- 标题padding 仅stretchMode为stretch_space时有效 -->
+        <attr name="sti_lineHeight" format="dimension" /> <!-- 标签高度 -->
+        <attr name="sti_lineColor" format="color" /> <!-- 标签颜色 -->
+        <attr name="sti_lineTopPadding" format="dimension" /> <!-- 标签距离标题间距 -->
         <attr name="sti_enableFollowPageScroll" format="boolean" /> <!-- 是否与ViewPager联动 -->
-        <attr name="sti_enableTabAnimation" format="boolean" /> <!-- 标签是否执行滚动动画 -->
-        <attr name="sti_stretch_mode"> <!-- 间距拉伸模式 -->
+        <attr name="sti_enableLineAnimation" format="boolean" /> <!-- 标签是否执行滚动动画 -->
+        <attr name="sti_stretchMode"> <!-- 宽度拉伸模式 -->
             <enum name="stretch_width" value="0" /> <!-- 宽度填充-->
             <enum name="stretch_space" value="1" /> <!-- 间距填充-->
         </attr>
-        <attr name="sti_titlePadding" format="dimension" /> <!-- 标题padding 仅sti_stretch_mode为stretch_space时有效 -->
+        <attr name="sti_lineWidthMode"> <!-- 标签宽度模式 -->
+            <enum name="wrap_content" value="0" /> <!-- wrap_content-->
+            <enum name="match_parent" value="1" /> <!-- match_parent-->
+        </attr>
+        <attr name="sti_lineWidthPercent" format="float" /> <!-- 标签宽度百分比 仅lineWidthMode为match_parent时有效-->
     </declare-styleable>
 </resources>
