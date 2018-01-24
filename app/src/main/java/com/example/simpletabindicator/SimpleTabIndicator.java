@@ -57,11 +57,11 @@ public class SimpleTabIndicator extends View {
 
     public static final int STRETCH_WIDTH = 0;
     public static final int STRETCH_SPACE = 1;
-    private int mStretchMode = STRETCH_SPACE;
+    private int mStretchMode = STRETCH_WIDTH;
 
     public static final int WRAP_CONTENT = 0;
     public static final int MATCH_PARENT = 1;
-    private int mLineWidthMode = STRETCH_WIDTH;
+    private int mLineWidthMode = MATCH_PARENT;
 
     private SparseArray<Tab> mTabs = new SparseArray<Tab>();
 
@@ -86,7 +86,7 @@ public class SimpleTabIndicator extends View {
         mEnableLineAnimation = ta.getBoolean(R.styleable.SimpleTabIndicator_sti_enableLineAnimation, true);
 
         mStretchMode = ta.getInt(R.styleable.SimpleTabIndicator_sti_stretchMode, STRETCH_WIDTH);
-        mLineWidthMode = ta.getInt(R.styleable.SimpleTabIndicator_sti_lineWidthMode, WRAP_CONTENT);
+        mLineWidthMode = ta.getInt(R.styleable.SimpleTabIndicator_sti_lineWidthMode, MATCH_PARENT);
 
         ta.recycle();
 
@@ -103,19 +103,16 @@ public class SimpleTabIndicator extends View {
         mLinePaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
-    public void setTitles(String... titles) {
-        if (titles == null) {
-            throw new IllegalArgumentException("titles must not be null");
-        } else {
-            mTitles = titles;
-        }
+    public void setTitles(final String... titles) {
+        mTitles = titles;
 
         post(new Runnable() {
             @Override
             public void run() {
-                Log.w(TAG, "width: " + getMeasuredWidth() + ", height: " + getMeasuredHeight());
-                buildTabs();
-                setTab(0, false);
+                if (mTitles != null && mTitles.length != 0) {
+                    buildTabs();
+                    setTab(0, false);
+                }
             }
         });
     }
@@ -306,7 +303,7 @@ public class SimpleTabIndicator extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         if (w != oldw || h != oldh) {
-            if (mTitles != null) {
+            if (mTitles != null && mTitles.length != 0) {
                 buildTabs();
                 setTab(0, false);
             }
