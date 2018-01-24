@@ -9,7 +9,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -58,13 +57,13 @@ public class SimpleTabIndicator extends View {
 
     public static final int STRETCH_WIDTH = 0;
     public static final int STRETCH_SPACE = 1;
-    private int mStretchMode = STRETCH_WIDTH;
+    private int mStretchMode = STRETCH_SPACE;
 
     public static final int WRAP_CONTENT = 0;
     public static final int MATCH_PARENT = 1;
     private int mLineWidthMode = STRETCH_WIDTH;
 
-    private SparseArray<Tab> mTabs = new SparseArray<>();
+    private SparseArray<Tab> mTabs = new SparseArray<Tab>();
 
     public SimpleTabIndicator(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -110,6 +109,15 @@ public class SimpleTabIndicator extends View {
         } else {
             mTitles = titles;
         }
+
+        post(new Runnable() {
+            @Override
+            public void run() {
+                Log.w(TAG, "width: " + getMeasuredWidth() + ", height: " + getMeasuredHeight());
+                buildTabs();
+                setTab(0, false);
+            }
+        });
     }
 
     /**
@@ -119,9 +127,6 @@ public class SimpleTabIndicator extends View {
      * @param titles    标题
      */
     public void setViewPager(final ViewPager viewPager, final String... titles) {
-
-        setTitles(titles);
-
         if (viewPager != null) {
             viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
@@ -134,20 +139,13 @@ public class SimpleTabIndicator extends View {
 
                 @Override
                 public void onPageSelected(int position) {
-                    if (!mEnableFollowPageScroll) {
-                        setCurrentTab(position, mEnableLineAnimation);
-                    }
+                    mCurrentTabIndex = position; // 惯性滚动中为了让title提前变为已选中的颜色
                 }
 
                 @Override
                 public void onPageScrollStateChanged(int state) {
-                }
-            });
-            viewPager.addOnAdapterChangeListener(new ViewPager.OnAdapterChangeListener() {
-                @Override
-                public void onAdapterChanged(@NonNull ViewPager viewPager, @Nullable PagerAdapter oldAdapter, @Nullable PagerAdapter newAdapter) {
-                    if (newAdapter != null && newAdapter.getCount() != titles.length) {
-                        throw new IllegalArgumentException("ViewPager's page count must be same as titles'");
+                    if (state == ViewPager.SCROLL_STATE_IDLE) {
+                        mCurrentTabIndex = viewPager.getCurrentItem();
                     }
                 }
             });
@@ -158,9 +156,11 @@ public class SimpleTabIndicator extends View {
             }
 
             mViewPager = viewPager;
+        } else {
+            mEnableFollowPageScroll = false;
         }
 
-        setTab(0, false);
+        setTitles(titles);
     }
 
     /**
@@ -180,7 +180,12 @@ public class SimpleTabIndicator extends View {
      */
     public void setCurrentTab(final int tabIndex, final boolean tabAnimation) {
         if (tabIndex >= 0 && tabIndex < mTabs.size() && tabIndex != mCurrentTabIndex) {
-            setTab(tabIndex, tabAnimation);
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    setTab(tabIndex, tabAnimation);
+                }
+            });
         }
     }
 
@@ -191,25 +196,20 @@ public class SimpleTabIndicator extends View {
      * @param tabAnimation 是否需要滚动动画
      */
     private void setTab(final int tabIndex, final boolean tabAnimation) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                if (tabAnimation) {
-                    smoothScrollTo(tabIndex);
-                } else {
-                    mCurrentTabIndex = tabIndex;
+        if (tabAnimation) {
+            smoothScrollTo(tabIndex);
+        } else {
+            mCurrentTabIndex = tabIndex;
 
-                    final Tab nextTab = mTabs.get(tabIndex);
-                    mScrollStartX = nextTab.lineStart;
-                    mScrollEndX = nextTab.lineEnd;
-                    invalidate();
+            final Tab nextTab = mTabs.get(tabIndex);
+            mScrollStartX = nextTab.lineStart;
+            mScrollEndX = nextTab.lineEnd;
+            invalidate();
 
-                    if (mViewPager != null) {
-                        mViewPager.setCurrentItem(tabIndex, false);
-                    }
-                }
+            if (mViewPager != null) {
+                mViewPager.setCurrentItem(tabIndex, false);
             }
-        });
+        }
     }
 
     /**
@@ -242,6 +242,10 @@ public class SimpleTabIndicator extends View {
      */
     private void smoothScrollTo(final int to) {
 
+        if (isTabScrolling()) {
+            return;
+        }
+
         final Tab currentTab = mTabs.get(mCurrentTabIndex);
         final Tab nextTab = mTabs.get(to);
 
@@ -268,7 +272,7 @@ public class SimpleTabIndicator extends View {
                 }
             }
         });
-        mLineScrollAnimation.setDuration(300);
+        mLineScrollAnimation.setDuration(200);
         mLineScrollAnimation.start();
     }
 
@@ -302,7 +306,10 @@ public class SimpleTabIndicator extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         if (w != oldw || h != oldh) {
-            buildTabs();
+            if (mTitles != null) {
+                buildTabs();
+                setTab(0, false);
+            }
         }
     }
 
@@ -325,7 +332,7 @@ public class SimpleTabIndicator extends View {
                     tab.lineStart = tab.centerX - titleRect.width() / 2 - mTitlePadding;
                     tab.lineEnd = tab.centerX + titleRect.width() / 2 + mTitlePadding;
                     tab.lineWidth = tab.lineEnd - tab.lineStart;
-                } else {
+                } else if (mLineWidthMode == MATCH_PARENT) {
                     final int lineWidth = (int) (tab.width * mLineWidthPercent);
                     tab.lineStart = tab.centerX - lineWidth / 2;
                     tab.lineEnd = tab.centerX + lineWidth / 2;
@@ -340,7 +347,7 @@ public class SimpleTabIndicator extends View {
                 totalTitleWidth += titleRect.width();
             }
             final int spaceWidth = width - totalTitleWidth;
-            final int averageSpaceWidth = (int) (spaceWidth / (count * 2) + 0.5f);
+            final int averageSpaceWidth = spaceWidth / (count * 2);
             int start = getPaddingLeft();
             for (int i = 0; i < count; i++) {
                 final String title = mTitles[i];
@@ -355,7 +362,7 @@ public class SimpleTabIndicator extends View {
                     tab.lineStart = tab.centerX - titleRect.width() / 2 - mTitlePadding;
                     tab.lineEnd = tab.centerX + titleRect.width() / 2 + mTitlePadding;
                     tab.lineWidth = tab.lineEnd - tab.lineStart;
-                } else {
+                } else if (mLineWidthMode == MATCH_PARENT) {
                     final int lineWidth = (int) (tab.width * mLineWidthPercent);
                     tab.lineStart = tab.centerX - lineWidth / 2;
                     tab.lineEnd = tab.centerX + lineWidth / 2;
@@ -404,6 +411,10 @@ public class SimpleTabIndicator extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if (mTabs.size() == 0) {
+            return;
+        }
+
         final int count = mTabs.size(); // 标题数量
         final int paddingTop = getPaddingTop(); // 上边距
 
@@ -433,6 +444,8 @@ public class SimpleTabIndicator extends View {
         // 标签结束 y = 标签起始坐标 + 标签宽度
         int endY = startY;
 
+        Log.w(TAG, "startX: " + mScrollStartX + ", endX: " + mScrollEndX);
+
         canvas.drawLine(startX, startY, endX, endY, mLinePaint);
     }
 
@@ -460,7 +473,7 @@ public class SimpleTabIndicator extends View {
 
     }
 
-    private final ArrayList<OnTabChangedListener> mOnTabChangedListeners = new ArrayList<>();
+    private final ArrayList<OnTabChangedListener> mOnTabChangedListeners = new ArrayList<OnTabChangedListener>();
 
     /**
      * 设置标签变化回调

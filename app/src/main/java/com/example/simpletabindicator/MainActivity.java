@@ -2,16 +2,16 @@ package com.example.simpletabindicator;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 
 import java.util.Arrays;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -25,13 +25,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String[] titles = {"等额本息", "还本付息", "到期还本付息", "其他产品"};
+        final String[] titles = {"等额本息", "按月付息", "到期还本付息", "其他产品"};
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(), Arrays.asList(titles)));
 
         indicator = (SimpleTabIndicator) findViewById(R.id.tab_indicator1);
-        indicator.setViewPager(viewPager, titles);
         indicator.addOnTabChangedListener(new SimpleTabIndicator.OnTabChangedListener() {
             @Override
             public void onTabChanged(int currentTabIndex) {
@@ -40,13 +39,20 @@ public class MainActivity extends AppCompatActivity {
         });
 
         indicator2 = (SimpleTabIndicator) findViewById(R.id.tab_indicator2);
-        indicator2.setViewPager(viewPager, titles);
         indicator2.addOnTabChangedListener(new SimpleTabIndicator.OnTabChangedListener() {
             @Override
             public void onTabChanged(int currentTabIndex) {
                 indicator.setCurrentTab(currentTabIndex);
             }
         });
+
+        viewPager.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                indicator.setViewPager(viewPager, titles);
+                indicator2.setViewPager(viewPager, titles);
+            }
+        }, 1000);
     }
 
     private class MyAdapter extends FragmentPagerAdapter {

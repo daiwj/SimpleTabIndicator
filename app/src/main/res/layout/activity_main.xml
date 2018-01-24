@@ -17,8 +17,7 @@
         app:sti_lineColor="#ff0000"
         app:sti_lineHeight="4dp"
         app:sti_lineTopPadding="15dp"
-        app:sti_lineWidthMode="match_parent"
-        app:sti_lineWidthPercent="0.5"
+        app:sti_lineWidthMode="wrap_content"
         app:sti_stretchMode="stretch_width"
         app:sti_titleSize="15dp"
         app:sti_unCheckedTitleColor="#222222" />
@@ -37,7 +36,6 @@
         app:sti_lineHeight="4dp"
         app:sti_lineTopPadding="15dp"
         app:sti_lineWidthMode="match_parent"
-        app:sti_lineWidthPercent="0.5"
         app:sti_stretchMode="stretch_space"
         app:sti_titleSize="15dp"
         app:sti_unCheckedTitleColor="#222222" />
