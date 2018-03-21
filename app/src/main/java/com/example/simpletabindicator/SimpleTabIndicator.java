@@ -27,7 +27,7 @@ import java.util.ArrayList;
  *
  * @author dwj  2017/8/23 09:08
  */
-public class SimpleTabIndicator extends View {
+public class SimpleTabIndicator extends View implements ViewPager.OnPageChangeListener {
 
     public static final String TAG = SimpleTabIndicator.class.getSimpleName();
 
@@ -103,18 +103,21 @@ public class SimpleTabIndicator extends View {
         mLinePaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
-    public void setTitles(final String... titles) {
-        mTitles = titles;
+    public void setTitles(final String[] titles) {
+        setTitles(titles, 0);
+    }
 
-        post(new Runnable() {
-            @Override
-            public void run() {
-                if (mTitles != null && mTitles.length != 0) {
+    public void setTitles(final String[] titles, final int tabIndex) {
+        mTitles = titles;
+        if (mTitles != null && mTitles.length != 0) {
+            post(new Runnable() {
+                @Override
+                public void run() {
                     buildTabs();
-                    setTab(0, false);
+                    setCurrentTabInternal(tabIndex, false);
                 }
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -123,41 +126,56 @@ public class SimpleTabIndicator extends View {
      * @param viewPager 当viewpager为空时，指示器不会和ViewPager联动，ViewPager翻页时，指示器不会自动切换。</br>
      * @param titles    标题
      */
-    public void setViewPager(final ViewPager viewPager, final String... titles) {
+    public void setViewPager(final ViewPager viewPager, final String[] titles) {
+        setViewPager(viewPager, titles, 0);
+    }
+
+    /**
+     * 绑定ViewPager
+     *
+     * @param viewPager 当viewpager为空时，指示器不会和ViewPager联动，ViewPager翻页时，指示器不会自动切换。</br>
+     * @param titles    标题
+     */
+    public void setViewPager(final ViewPager viewPager, final String[] titles, int tabIndex) {
         if (viewPager != null) {
-            viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                    if (mEnableFollowPageScroll) {
-                        followPageScroll(position, positionOffset, positionOffsetPixels);
-                    }
-                }
-
-                @Override
-                public void onPageSelected(int position) {
-                    mCurrentTabIndex = position; // 惯性滚动中为了让title提前变为已选中的颜色
-                }
-
-                @Override
-                public void onPageScrollStateChanged(int state) {
-                    if (state == ViewPager.SCROLL_STATE_IDLE) {
-                        mCurrentTabIndex = viewPager.getCurrentItem();
-                    }
-                }
-            });
-
+            if (mViewPager != null) {
+                mViewPager.removeOnPageChangeListener(this);
+            }
+            mViewPager = viewPager;
+            mViewPager.addOnPageChangeListener(this);
             final PagerAdapter adapter = viewPager.getAdapter();
             if (adapter != null && adapter.getCount() != titles.length) {
                 throw new IllegalArgumentException("ViewPager's page count must be same as titles'");
             }
-
-            mViewPager = viewPager;
+            mEnableFollowPageScroll = true;
         } else {
             mEnableFollowPageScroll = false;
         }
 
-        setTitles(titles);
+        setTitles(titles, tabIndex);
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        if (mEnableFollowPageScroll) {
+            followPageScroll(position, positionOffset, positionOffsetPixels);
+        }
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        if (mEnableFollowPageScroll) {
+            mCurrentTabIndex = position; // 惯性滚动中为了让title提前变为已选中的颜色
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+        if (mEnableFollowPageScroll) {
+            if (state == ViewPager.SCROLL_STATE_IDLE) {
+                mCurrentTabIndex = mViewPager.getCurrentItem();
+            }
+        }
     }
 
     /**
@@ -180,7 +198,7 @@ public class SimpleTabIndicator extends View {
             post(new Runnable() {
                 @Override
                 public void run() {
-                    setTab(tabIndex, tabAnimation);
+                    setCurrentTabInternal(tabIndex, tabAnimation);
                 }
             });
         }
@@ -192,9 +210,11 @@ public class SimpleTabIndicator extends View {
      * @param tabIndex     标签页
      * @param tabAnimation 是否需要滚动动画
      */
-    private void setTab(final int tabIndex, final boolean tabAnimation) {
+    private void setCurrentTabInternal(final int tabIndex, final boolean tabAnimation) {
         if (tabAnimation) {
-            smoothScrollTo(tabIndex);
+            if (!isTabScrolling()) {
+                smoothScrollTo(tabIndex);
+            }
         } else {
             mCurrentTabIndex = tabIndex;
 
@@ -204,7 +224,7 @@ public class SimpleTabIndicator extends View {
             invalidate();
 
             if (mViewPager != null) {
-                mViewPager.setCurrentItem(tabIndex, false);
+                mViewPager.setCurrentItem(mCurrentTabIndex, false);
             }
         }
     }
@@ -238,10 +258,6 @@ public class SimpleTabIndicator extends View {
      * @param to
      */
     private void smoothScrollTo(final int to) {
-
-        if (isTabScrolling()) {
-            return;
-        }
 
         final Tab currentTab = mTabs.get(mCurrentTabIndex);
         final Tab nextTab = mTabs.get(to);
@@ -305,12 +321,15 @@ public class SimpleTabIndicator extends View {
         if (w != oldw || h != oldh) {
             if (mTitles != null && mTitles.length != 0) {
                 buildTabs();
-                setTab(0, false);
+                setCurrentTabInternal(mCurrentTabIndex, false);
             }
         }
     }
 
     private void buildTabs() {
+        if (mTitles == null || mTitles.length == 0) {
+            return;
+        }
         mTabs.clear();
         final int width = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
         final int count = mTitles.length;
