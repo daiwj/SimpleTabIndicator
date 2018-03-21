@@ -48,13 +48,8 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
-        viewPager.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                indicator.setViewPager(viewPager, titles);
-                indicator2.setViewPager(viewPager, titles);
-            }
-        }, 1000);
+        indicator.setViewPager(viewPager, titles);
+        indicator2.setViewPager(viewPager, titles);
     }
 
     private class MyAdapter extends FragmentPagerAdapter {
